@@ -1,0 +1,294 @@
+/* =========================================================================
+   HOME PAGE UI V3 - EXACT MOCKUP MATCH
+   ========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600&display=swap');
+
+.home-container {
+  min-height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #ffffff 0%, #f6efff 40%, #e2cffc 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  color: #2e0f4c;
+}
+
+/* Big swooping CSS curves to mimic mockup */
+.wave-overlay {
+  position: absolute;
+  width: 150vw;
+  height: 150vh;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wave-top {
+  top: -20%;
+  left: -20%;
+  box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.8), 0 0 150px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(233, 213, 255, 0.1) 100%);
+  transform: rotate(-15deg);
+}
+
+.wave-bottom {
+  bottom: -40%;
+  right: -20%;
+  box-shadow: inset 0 0 100px rgba(200, 160, 255, 0.2), 0 -50px 100px rgba(230, 200, 255, 0.3);
+  background: linear-gradient(135deg, rgba(200, 160, 255, 0.1) 0%, rgba(255, 255, 255, 0.4) 100%);
+  transform: rotate(-25deg);
+}
+
+/* Header & Typography */
+.home-header {
+  text-align: center;
+  padding: 20px 24px;
+  position: relative;
+  z-index: 2;
+  margin-top: 30px;
+}
+
+.script-font {
+  font-family: 'Great Vibes', cursive;
+  font-size: 130px;
+  color: #4c1d95;
+  font-weight: 400;
+  margin-right: 25px;
+  text-shadow: 0 5px 15px rgba(88, 28, 135, 0.3);
+}
+
+.serif-font {
+  font-family: 'Playfair Display', serif;
+  font-size: 80px;
+  font-weight: 700;
+  color: #4c1d95;
+  letter-spacing: 2px;
+}
+
+.landing-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #7e22ce;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Category Selection Area */
+.category-selection {
+  text-align: center;
+  margin-top: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.category-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  color: #581c87;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-weight: 700;
+}
+
+.category-title::before,
+.category-title::after {
+  content: '';
+  height: 2px;
+  width: 80px;
+  background: rgba(106, 40, 176, 0.4);
+}
+
+.category-buttons {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+}
+
+.btn-cat {
+  padding: 30px 80px;
+  font-size: 2.5rem;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  border-radius: 60px;
+  border: 4px solid white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  backdrop-filter: blur(12px);
+}
+
+.btn-bride-cat {
+  background: linear-gradient(135deg, rgba(240, 230, 255, 0.9) 0%, rgba(220, 200, 250, 0.95) 100%);
+  color: #4c1d95;
+  box-shadow:
+    0 15px 35px rgba(106, 40, 176, 0.2),
+    inset 0 4px 10px rgba(255, 255, 255, 1);
+}
+
+.btn-groom-cat {
+  background: rgba(255, 255, 255, 0.85);
+  color: #4c1d95;
+  box-shadow:
+    0 15px 35px rgba(106, 40, 176, 0.15),
+    inset 0 4px 10px rgba(255, 255, 255, 1);
+}
+
+.btn-cat:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow:
+    0 25px 45px rgba(106, 40, 176, 0.3),
+    inset 0 4px 15px rgba(255, 255, 255, 1);
+}
+
+/* Year Section */
+.year-section {
+  max-width: 1400px;
+  margin: 0 auto 60px;
+  z-index: 5;
+  position: relative;
+}
+
+.year-row {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  padding: 20px 20px 40px;
+  scrollbar-width: thin;
+  scrollbar-color: #c084fc transparent;
+}
+
+.year-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.year-row::-webkit-scrollbar-thumb {
+  background: #c084fc;
+  border-radius: 10px;
+}
+
+.profile-wrapper {
+  flex: 0 0 auto;
+  width: 450px;
+}
+
+/* Helpers */
+.premium-empty {
+  text-align: center;
+  padding: 50px;
+  color: #6a28b0;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Butterfly specific */
+.butterfly-svg {
+  filter: drop-shadow(0 5px 10px rgba(120, 60, 200, 0.5));
+}
+
+.butterfly-wings {
+  animation: flap 0.15s infinite alternate ease-in-out;
+}
+
+@keyframes flap {
+  0% {
+    transform: scaleX(1) scaleY(1.1);
+  }
+
+  100% {
+    transform: scaleX(0.2) scaleY(0.9);
+  }
+}
+
+.home-trail-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 10px 4px rgba(160, 100, 255, 0.6), 0 0 20px 8px rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+/* Sparkle System */
+.home-sparkle-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.home-sparkle-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 4px rgba(220, 180, 255, 0.8), 0 0 20px 8px rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Continuous Slow Wave Animation for Text */
+.home-header-typography {
+  display: inline-block;
+  animation: slowTextWave 6s ease-in-out infinite alternate;
+}
+
+@keyframes slowTextWave {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .script-font {
+    font-size: 80px;
+    margin-right: 0px;
+  }
+
+  .serif-font {
+    font-size: 50px;
+  }
+
+  .category-buttons {
+    flex-direction: column;
+    padding: 0 20px;
+    gap: 20px;
+  }
+
+  .btn-cat {
+    padding: 24px 60px;
+    font-size: 2rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-wrapper {
+    width: 320px;
+  }
+
+  .year-section {
+    padding: 0 15px;
+  }
+}

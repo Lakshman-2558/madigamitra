@@ -1,0 +1,60 @@
+/* =========================================================================
+   PREMIUM LIGHT THEME PROFILE CARDS (FULL IMAGE FIT)
+   ========================================================================= */
+
+.profile-card {
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  position: relative;
+  border: none;
+}
+
+.profile-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.image-container {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  background-color: transparent;
+  position: relative;
+  padding: 0;
+}
+
+.image-container img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: auto;
+  max-height: 85vh;
+  object-fit: contain;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Float image slightly out of the card on hover */
+.profile-card:hover .image-container img {
+  transform: scale(1.03);
+  box-shadow: 0 15px 40px rgba(106, 13, 173, 0.25);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .profile-card {
+    border-radius: 0;
+  }
+
+  .image-container img {
+    border-radius: 8px;
+    min-height: auto;
+  }
+}

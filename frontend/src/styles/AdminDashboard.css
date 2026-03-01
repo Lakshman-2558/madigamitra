@@ -1,0 +1,281 @@
+/* =========================================================================
+   ADMIN DASHBOARD UI - VIOLET & BLACK THEME
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+.admin-dashboard {
+  min-height: 100vh;
+  background-color: #f1f5f9;
+  font-family: 'Outfit', sans-serif;
+  color: #000;
+}
+
+/* ================== HEADER ================== */
+.admin-header {
+  background: #ffffff;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+}
+
+.header-left h1 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 4px;
+  font-size: 32px;
+  color: #000;
+  font-weight: 800;
+}
+
+.header-left p {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.header-left strong {
+  color: #6a0dad;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-header button {
+  padding: 12px 24px;
+  font-size: 15px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-public-btn {
+  background-color: #f8fafc;
+  color: #4c1d95;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.back-public-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1 !important;
+  color: #000;
+}
+
+.upload-btn {
+  background-color: #6a0dad;
+  color: white;
+  box-shadow: 0 4px 10px rgba(106, 13, 173, 0.2);
+}
+
+.upload-btn:hover {
+  background-color: #5c0b96;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(106, 13, 173, 0.3);
+}
+
+.logout-btn {
+  background-color: #000000;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn:hover {
+  background-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* ================== FILTERS ================== */
+.filters {
+  display: flex;
+  gap: 24px;
+  padding: 24px 40px;
+  background-color: white;
+  margin: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #000;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  min-width: 140px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-group select:focus {
+  border-color: #6a0dad;
+}
+
+/* ================== PROFILES TABLE ================== */
+.profiles-section {
+  padding: 0 40px 40px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.profiles-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.profiles-table thead {
+  background-color: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.profiles-table th {
+  padding: 20px;
+  text-align: left;
+  font-weight: 700;
+  color: #000;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profiles-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.profiles-table tr:hover {
+  background-color: #faf5ff;
+}
+
+.profiles-table img {
+  width: 60px;
+  height: 80px;
+  object-fit: contain;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.profiles-table .code {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  color: #6a0dad;
+}
+
+/* ================== BADGES & BUTTONS ================== */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-badge.inactive {
+  background-color: #ffe4e6;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+.delete-btn {
+  background-color: #e11d48;
+  color: white;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:not(:disabled):hover {
+  background-color: #be123c;
+}
+
+.row-inactive {
+  opacity: 0.6;
+}
+
+/* ================== MOBILE ================== */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    text-align: left;
+    padding: 24px;
+  }
+
+  .header-actions {
+    justify-content: flex-start;
+  }
+
+  .admin-header button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .filters {
+    margin: 20px;
+    padding: 20px;
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group select {
+    flex: 1;
+  }
+
+  .profiles-section {
+    padding: 0 20px 40px;
+  }
+
+  .profiles-table th,
+  .profiles-table td {
+    padding: 12px;
+  }
+}

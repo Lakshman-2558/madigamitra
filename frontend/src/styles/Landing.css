@@ -1,0 +1,263 @@
+/* =========================================================================
+   LANDING PAGE UI V3 - EXACT MOCKUP MATCH
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600&display=swap');
+
+.landing-container {
+    min-height: 100vh;
+    width: 100vw;
+    /* Very soft starlight gradient matching mockup */
+    background: radial-gradient(circle at center, #ffffff 0%, #f6efff 40%, #e2cffc 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Big swooping CSS curves to emulate the ribbons */
+.ribbon {
+    position: absolute;
+    width: 150vw;
+    height: 150vh;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.ribbon-1 {
+    top: 10%;
+    left: -20%;
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.8), 0 0 150px rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(233, 213, 255, 0.1) 100%);
+    transform: rotate(-15deg);
+}
+
+.ribbon-2 {
+    bottom: -40%;
+    right: -20%;
+    box-shadow: inset 0 0 100px rgba(200, 160, 255, 0.2), 0 -50px 100px rgba(230, 200, 255, 0.3);
+    background: linear-gradient(135deg, rgba(200, 160, 255, 0.1) 0%, rgba(255, 255, 255, 0.4) 100%);
+    transform: rotate(-25deg);
+}
+
+.ribbon-3 {
+    top: -60%;
+    right: -30%;
+    box-shadow: 0 50px 150px rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(20deg);
+}
+
+/* Center Content */
+.landing-content {
+    text-align: center;
+    z-index: 10;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0;
+}
+
+/* Radial light glow behind text */
+.text-glow-wrapper {
+    position: absolute;
+    width: 1000px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 60%);
+    filter: blur(50px);
+    z-index: -1;
+}
+
+.landing-title {
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1;
+    text-shadow: 0 10px 30px rgba(255, 255, 255, 1);
+}
+
+.script-font {
+    font-family: 'Great Vibes', cursive;
+    font-size: 160px;
+    color: #4c1d95;
+    font-weight: 400;
+    display: inline-block;
+    margin-right: 20px;
+    text-shadow: 0 5px 15px rgba(88, 28, 135, 0.3);
+}
+
+.serif-font {
+    font-family: 'Playfair Display', serif;
+    font-size: 90px;
+    font-weight: 700;
+    color: #4c1d95;
+    letter-spacing: 2px;
+}
+
+.landing-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #7e22ce;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 15px;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Bottom Center Action Button - EXACT 3D GLOSSY ORB */
+.btn-see-more-container {
+    position: relative;
+    margin-top: 8vh;
+    z-index: 20;
+}
+
+.btn-see-more {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 235, 255, 0.9) 100%);
+    color: #581c87;
+    border: 4px solid rgba(255, 255, 255, 1);
+    border-radius: 80px;
+    padding: 24px 80px;
+    font-size: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 4px rgba(180, 130, 240, 0.5),
+        /* purple inner ring */
+        inset 0 -10px 25px rgba(160, 100, 240, 0.4),
+        /* bottom glossy shadow */
+        inset 0 6px 15px #ffffff,
+        /* top highlight */
+        0 20px 40px rgba(138, 43, 226, 0.25),
+        /* soft drop shadow */
+        0 0 60px rgba(216, 180, 254, 0.7);
+    /* massive outer glow */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+    position: relative;
+    will-change: transform, box-shadow;
+    backdrop-filter: blur(12px);
+}
+
+.btn-see-more:hover {
+    transform: scale(1.08);
+    box-shadow:
+        0 0 0 4px rgba(180, 130, 240, 0.7),
+        inset 0 -10px 25px rgba(160, 100, 240, 0.5),
+        inset 0 6px 15px #ffffff,
+        0 25px 50px rgba(138, 43, 226, 0.35),
+        0 0 90px rgba(216, 180, 254, 0.9);
+}
+
+/* Butterfly */
+.butterfly-wrapper {
+    position: absolute;
+    top: -55px;
+    right: -10px;
+    pointer-events: none;
+    z-index: 30;
+    transform-origin: center;
+    will-change: transform;
+}
+
+.butterfly-svg {
+    filter: drop-shadow(0 5px 10px rgba(120, 60, 200, 0.5));
+}
+
+/* Flapping animation */
+.butterfly-wings {
+    transform-origin: center;
+    animation: flap 0.15s infinite alternate ease-in-out;
+}
+
+@keyframes flap {
+    0% {
+        transform: scaleX(1) scaleY(1.1);
+    }
+
+    100% {
+        transform: scaleX(0.2) scaleY(0.9);
+    }
+}
+
+/* Sparkle Particles Layer */
+.sparkle-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.sparkle-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 4px rgba(220, 180, 255, 0.8), 0 0 20px 8px rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    opacity: 0;
+    will-change: opacity, transform;
+}
+
+.trail-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 10px 4px rgba(160, 100, 255, 0.8), 0 0 20px 8px rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+
+/* Continuous Slow Wave Animation for Text */
+.floating-title {
+    display: block;
+    animation: slowTextWave 6s ease-in-out infinite alternate;
+}
+
+@keyframes slowTextWave {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-12px) rotate(1deg);
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .script-font {
+        font-size: 65px;
+    }
+
+    .serif-font {
+        font-size: 40px;
+    }
+
+    .landing-subtitle {
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+
+    .btn-see-more {
+        padding: 16px 50px;
+        font-size: 1.2rem;
+    }
+
+    .btn-see-more-container {
+        margin-top: 5vh;
+        bottom: auto;
+    }
+}
