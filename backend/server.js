@@ -2,7 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
 
 // Import routes
 import adminRoutes from './routes/adminRoutes.js';
@@ -18,8 +17,20 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174', // Backup Vite port
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -48,24 +59,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-const __dirname = path.resolve();
-
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
-} else {
-  // 404 handler for API routes (development mode)
-  app.use((req, res) => {
-    res.status(404).json({
-      success: false,
-      message: 'Route not found'
-    });
-  });
-}
+});
 
 // Error handler
 app.use((err, req, res, next) => {

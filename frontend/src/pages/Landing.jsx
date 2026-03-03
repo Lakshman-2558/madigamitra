@@ -179,6 +179,24 @@ const Landing = () => {
                     <ButterflyTail isFlying={isTransitioning} isMobile={isMobile} />
                 </div>
             </motion.div>
+
+            {/* Discreet Admin Access Link */}
+            <div
+                onClick={() => navigate('/admin/login')}
+                style={{
+                    position: 'absolute',
+                    bottom: '15px',
+                    right: '20px',
+                    fontSize: '12px',
+                    color: 'rgba(255, 255, 255, 0.2)',
+                    cursor: 'pointer',
+                    zIndex: 100,
+                    textDecoration: 'none',
+                    userSelect: 'none'
+                }}
+            >
+                A
+            </div>
         </motion.div>
     );
 };
