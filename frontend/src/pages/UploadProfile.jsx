@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadProfile } from '../api/api';
+import { uploadBulkProfiles } from '../api/api';
 import '../styles/UploadProfile.css';
 
 const UploadProfile = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [category, setCategory] = useState('Bride');
-  const [preview, setPreview] = useState('');
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -19,40 +19,45 @@ const UploadProfile = () => {
     return null;
   }
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-
-    if (!selectedFile) return;
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      setError('Invalid file type. Only JPG, JPEG, PNG allowed');
-      return;
-    }
-
-    // Validate file size
-    if (selectedFile.size > 2 * 1024 * 1024) {
-      setError('File size exceeds 2MB limit');
-      return;
-    }
-
-    setFile(selectedFile);
-    setError('');
-
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
+  useEffect(() => {
+    // Cleanup preview URLs
+    return () => {
+      previews.forEach(p => URL.revokeObjectURL(p));
     };
-    reader.readAsDataURL(selectedFile);
+  }, [previews]);
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    if (selectedFiles.length === 0) return;
+
+    // Validate
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const validFiles = [];
+    const newPreviews = [];
+
+    selectedFiles.forEach(f => {
+      if (allowedTypes.includes(f.type) && f.size <= 2 * 1024 * 1024) {
+        validFiles.push(f);
+        newPreviews.push(URL.createObjectURL(f));
+      }
+    });
+
+    if (validFiles.length < selectedFiles.length) {
+      setError(`Skipped ${selectedFiles.length - validFiles.length} invalid files (wrong type or >2MB).`);
+    } else {
+      setError('');
+    }
+
+    setFiles(validFiles);
+    setPreviews(newPreviews);
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      setError('Please select an image');
+    if (files.length === 0) {
+      setError('Please select at least one image');
       return;
     }
 
@@ -66,18 +71,16 @@ const UploadProfile = () => {
     setSuccess('');
 
     try {
-      const result = await uploadProfile(file, category, token);
+      const result = await uploadBulkProfiles(files, category, token);
 
       if (result.success) {
-        setSuccess(`Profile uploaded successfully! Code: ${result.profile.profileCode}`);
-        setFile(null);
-        setPreview('');
-        setCategory('Bride');
+        setSuccess(result.message);
+        setFiles([]);
+        setPreviews([]);
 
-        // Redirect to dashboard after 2 seconds
         setTimeout(() => {
           navigate('/admin/dashboard');
-        }, 2000);
+        }, 3000);
       } else {
         setError(result.message);
       }
@@ -102,23 +105,28 @@ const UploadProfile = () => {
 
         <form onSubmit={handleUpload}>
           <div className="form-group">
-            <label htmlFor="image">Select Image (jpg, png)</label>
+            <label htmlFor="image">Select Images (jpg, png) - Max 100 at a time</label>
             <input
               type="file"
               id="image"
               accept="image/jpeg, image/jpg, image/png"
+              multiple
               onChange={handleFileChange}
               required
               disabled={loading}
               className="premium-file-input"
             />
-            <p className="file-info">Max size: 2MB | Supported: JPG, JPEG, PNG</p>
+            <p className="file-info">Max size per file: 2MB | Supported: JPG, JPEG, PNG</p>
           </div>
 
-          {preview && (
+          {previews.length > 0 && (
             <div className="preview-section">
-              <p>Preview:</p>
-              <img src={preview} alt="Preview" className="preview-image" />
+              <p>Previewing {previews.length} file(s):</p>
+              <div className="preview-grid">
+                {previews.map((src, idx) => (
+                  <img key={idx} src={src} alt="Preview" className="preview-image" />
+                ))}
+              </div>
             </div>
           )}
 
@@ -143,16 +151,6 @@ const UploadProfile = () => {
             {loading ? '⏳ Uploading...' : '📤 Upload Profile'}
           </button>
         </form>
-
-        <div className="info-box">
-          <p><strong>How it works:</strong></p>
-          <ol>
-            <li>Select clear image with code visible</li>
-            <li>Choose category (Bride/Groom)</li>
-            <li>Upload - OCR will extract the code automatically</li>
-            <li>Code is extracted gracefully regardless of length</li>
-          </ol>
-        </div>
       </div>
     </div>
   );

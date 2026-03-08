@@ -4,6 +4,7 @@ import bcryptjs from 'bcryptjs';
 import { verifyToken, generateToken } from '../middleware/auth.js';
 import {
   uploadProfile,
+  uploadBulkProfiles,
   getAllProfiles,
   deleteProfile
 } from '../controllers/profileController.js';
@@ -90,6 +91,13 @@ router.post('/login', async (req, res) => {
  * Requires: JWT token, image file, category
  */
 router.post('/upload', verifyToken, upload.single('image'), uploadProfile);
+
+/**
+ * ADMIN: Bulk Upload profiles
+ * POST /api/admin/bulk-upload
+ * Requires: JWT token, image files array, category
+ */
+router.post('/bulk-upload', verifyToken, upload.array('images', 200), uploadBulkProfiles);
 
 /**
  * ADMIN: Get all profiles

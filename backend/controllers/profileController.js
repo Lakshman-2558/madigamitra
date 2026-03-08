@@ -42,13 +42,12 @@ export const uploadProfile = async (req, res) => {
       throw new Error('Code not detected. Please upload clear image.');
     }
 
-    // Parse code components
     const { sequenceNumber, month, year } = parseProfileCode(profileCode);
 
     // Check if profile code already exists (must be unique)
     const existingProfile = await Profile.findOne({ profileCode });
     if (existingProfile) {
-      throw new Error('Profile code already exists');
+      throw new Error(`Duplicate! Profile code ${profileCode} already exists.`);
     }
 
     const { category } = req.body;
@@ -93,6 +92,104 @@ export const uploadProfile = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: error.message || 'Failed to upload profile'
+    });
+  }
+};
+
+/**
+ * ADMIN: Upload multiple profiles with OCR
+ * POST /api/admin/bulk-upload
+ */
+export const uploadBulkProfiles = async (req, res) => {
+  try {
+    const { category } = req.body;
+
+    if (!category || !['Bride', 'Groom'].includes(category)) {
+      throw new Error('Invalid category. Must be Bride or Groom');
+    }
+
+    if (!req.files || req.files.length === 0) {
+      throw new Error('No files provided');
+    }
+
+    const results = {
+      successful: 0,
+      failed: 0,
+      errors: []
+    };
+
+    // Sequential processing to avoid memory/rate limit issues
+    for (const file of req.files) {
+      let tempFilePath = null;
+      let processedFilePath = null;
+
+      try {
+        validateImage(file);
+
+        const filename = generateFilename();
+        tempFilePath = file.path;
+        processedFilePath = path.join(uploadsDir, filename);
+
+        await resizeImage(tempFilePath, processedFilePath);
+        const profileCode = await extractCodeFromImage(processedFilePath);
+
+        if (!profileCode) {
+          throw new Error('Code not detected');
+        }
+
+        const { sequenceNumber, month, year } = parseProfileCode(profileCode);
+
+        const existingProfile = await Profile.findOne({ profileCode });
+        if (existingProfile) {
+          throw new Error(`Duplicate! Profile code ${profileCode} already exists.`);
+        }
+
+        const { url: imageUrl, publicId } = await uploadToCloudinary(processedFilePath);
+
+        const newProfile = new Profile({
+          profileCode,
+          sequenceNumber,
+          month,
+          year,
+          category,
+          imageUrl,
+          publicId,
+          status: 'active'
+        });
+
+        await newProfile.save();
+
+        results.successful++;
+      } catch (err) {
+        results.failed++;
+        results.errors.push({
+          filename: file.originalname,
+          message: err.message || 'Failed processing'
+        });
+      } finally {
+        if (tempFilePath) await cleanupFile(tempFilePath).catch(() => { });
+        if (processedFilePath) await cleanupFile(processedFilePath).catch(() => { });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Processed ${req.files.length} files. Success: ${results.successful}, Failed: ${results.failed}`,
+      results
+    });
+  } catch (error) {
+    console.error('Bulk Upload Error:', error);
+
+    // Clean up any remaining files if main block fails
+    if (req.files) {
+      for (const file of req.files) {
+        await cleanupFile(file.path).catch(() => { });
+      }
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: error.message || 'Bulk upload failed'
     });
   }
 };
@@ -197,11 +294,16 @@ export const deleteProfile = async (req, res) => {
     }
 
     // Delete from Cloudinary
-    await deleteFromCloudinary(profile.publicId);
+    if (profile.publicId) {
+      try {
+        await deleteFromCloudinary(profile.publicId);
+      } catch (err) {
+        console.error(`Warning: Failed to delete Cloudinary asset ${profile.publicId}`);
+      }
+    }
 
-    // Soft delete in database
-    profile.status = 'inactive';
-    await profile.save();
+    // Hard delete in database
+    await Profile.findByIdAndDelete(profileId);
 
     return res.status(200).json({
       success: true,

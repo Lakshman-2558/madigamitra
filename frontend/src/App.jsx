@@ -2,12 +2,12 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
-import Landing from './pages/Landing';
 import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import UploadProfile from './pages/UploadProfile';
+import GlobalCursor from './components/GlobalCursor';
 import './styles/App.css';
 
 const AnimatedRoutes = () => {
@@ -17,8 +17,7 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/results" element={<SearchResults />} />
 
         {/* Admin Routes */}
@@ -36,6 +35,7 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
+      <GlobalCursor />
       <AnimatedRoutes />
     </BrowserRouter>
   );

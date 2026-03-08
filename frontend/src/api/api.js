@@ -34,6 +34,27 @@ export const uploadProfile = async (file, category, token) => {
   }
 };
 
+// Upload multiple profiles
+export const uploadBulkProfiles = async (files, category, token) => {
+  try {
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('images', files[i]);
+    }
+    formData.append('category', category);
+
+    const response = await axios.post(`${API_BASE_URL}/admin/bulk-upload`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Bulk upload failed' };
+  }
+};
+
 // Get all profiles
 export const getAllProfiles = async (token, filters = {}) => {
   try {

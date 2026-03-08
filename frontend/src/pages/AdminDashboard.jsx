@@ -85,110 +85,156 @@ const AdminDashboard = () => {
     navigate('/admin/upload');
   };
 
+  const totalProfiles = profiles.length;
+  const totalBrides = profiles.filter((p) => p.category === 'Bride').length;
+  const totalGrooms = profiles.filter((p) => p.category === 'Groom').length;
+
   return (
-    <div className="admin-dashboard">
-      <header className="admin-header">
-        <div className="header-left">
-          <h1>Admin Dashboard</h1>
-          <p>Welcome, <strong>{username}</strong></p>
+    <div className="admin-dashboard-layout">
+      {/* SIDEBAR */}
+      <aside className="admin-sidebar">
+        <div className="sidebar-brand">
+          <h2 className="cinematic-font">MADIGAMITRA</h2>
+          <p>Admin Portal</p>
         </div>
-        <div className="header-actions">
-          <button onClick={() => navigate('/')} className="back-public-btn">
-            🌍 Public Catalog
-          </button>
-          <button onClick={handleUploadReroute} className="upload-btn">
-            ➕ Upload Profile
-          </button>
+
+        <nav className="sidebar-nav">
+          <div className="nav-item active">
+            <span className="nav-icon">📊</span> Dashboard
+          </div>
+          <div className="nav-item" onClick={handleUploadReroute}>
+            <span className="nav-icon">➕</span> Upload Profile
+          </div>
+          <div className="nav-item" onClick={() => navigate('/')}>
+            <span className="nav-icon">🌍</span> Public Catalog
+          </div>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <div className="avatar">{username ? username.charAt(0).toUpperCase() : 'A'}</div>
+            <span>{username}</span>
+          </div>
           <button onClick={handleLogout} className="logout-btn">
             Logout
           </button>
         </div>
-      </header>
+      </aside>
 
-      <div className="filters">
-        <div className="filter-group">
-          <label htmlFor="status">Status:</label>
-          <select
-            id="status"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+      {/* MAIN CONTENT */}
+      <main className="admin-main">
+        <header className="main-header">
+          <div>
+            <h1>Dashboard Overview</h1>
+            <p>Welcome back, {username}. Here is what's happening today.</p>
+          </div>
+        </header>
+
+        {/* STATS WIDGETS */}
+        <div className="stats-container">
+          <div className="stat-card total">
+            <div className="stat-icon">📈</div>
+            <div className="stat-details">
+              <h3>{totalProfiles}</h3>
+              <p>Total Profiles</p>
+            </div>
+          </div>
+          <div className="stat-card brides">
+            <div className="stat-icon">👰</div>
+            <div className="stat-details">
+              <h3>{totalBrides}</h3>
+              <p>Brides</p>
+            </div>
+          </div>
+          <div className="stat-card grooms">
+            <div className="stat-icon">🤵</div>
+            <div className="stat-details">
+              <h3>{totalGrooms}</h3>
+              <p>Grooms</p>
+            </div>
+          </div>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="category">Category:</label>
-          <select
-            id="category"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="Bride">Bride</option>
-            <option value="Groom">Groom</option>
-          </select>
-        </div>
-      </div>
+        {/* TABLE SECTION */}
+        <div className="content-area">
+          <div className="content-header">
+            <h2>Profiles Directory</h2>
+            <div className="filters-glass">
+              <div className="filter-group">
+                <label htmlFor="status">Status:</label>
+                <select id="status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                  <option value="all">All</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label htmlFor="category">Category:</label>
+                <select id="category" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                  <option value="all">All</option>
+                  <option value="Bride">Bride</option>
+                  <option value="Groom">Groom</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-      {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message">{error}</div>}
 
-      {loading ? (
-        <div className="loading">Loading profiles...</div>
-      ) : (
-        <div className="profiles-section">
-          {profiles.length === 0 ? (
-            <div className="no-profiles">No profiles found</div>
+          {loading ? (
+            <div className="loading">Loading profiles...</div>
           ) : (
             <div className="table-responsive">
-              <table className="profiles-table">
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Code</th>
-                    <th>Sequence</th>
-                    <th>Month</th>
-                    <th>Year</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {profiles.map((profile) => (
-                    <tr key={profile._id} className={`row-${profile.status}`}>
-                      <td>
-                        <img src={profile.imageUrl} alt={profile.profileCode} />
-                      </td>
-                      <td className="code">{profile.profileCode}</td>
-                      <td>{profile.sequenceNumber}</td>
-                      <td>{profile.month}</td>
-                      <td>{profile.year}</td>
-                      <td>{profile.category}</td>
-                      <td>
-                        <span className={`status-badge ${profile.status}`}>
-                          {profile.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          onClick={() => handleDelete(profile._id)}
-                          disabled={deleting === profile._id}
-                          className="delete-btn"
-                        >
-                          {deleting === profile._id ? 'Deleting...' : 'Delete'}
-                        </button>
-                      </td>
+              {profiles.length === 0 ? (
+                <div className="no-profiles">No profiles found</div>
+              ) : (
+                <table className="profiles-table">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Code</th>
+                      <th>Sequence</th>
+                      <th>Month</th>
+                      <th>Year</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {profiles.map((profile) => (
+                      <tr key={profile._id} className={`row-${profile.status}`}>
+                        <td>
+                          <img src={profile.imageUrl} alt={profile.profileCode} />
+                        </td>
+                        <td className="code">{profile.profileCode}</td>
+                        <td>{profile.sequenceNumber}</td>
+                        <td>{profile.month}</td>
+                        <td>{profile.year}</td>
+                        <td>{profile.category}</td>
+                        <td>
+                          <span className={`status-badge ${profile.status}`}>
+                            {profile.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleDelete(profile._id)}
+                            disabled={deleting === profile._id}
+                            className="delete-btn"
+                          >
+                            {deleting === profile._id ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
         </div>
-      )}
+      </main>
     </div>
   );
 };
