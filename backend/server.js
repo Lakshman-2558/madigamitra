@@ -3,12 +3,12 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+// Load environment variables IMMEDIATELY to avoid undefined env vars in downstream modules like Cloudinary
+dotenv.config();
+
 // Import routes
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 

@@ -40,14 +40,14 @@ const SearchIcon = () => (
 );
 
 const GroomIcon = () => (
-  <div style={{ width: '130px', height: '170px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <img src="/Groom-new.png" alt="Groom" style={{ height: '100%', width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 0 18px rgba(233, 213, 255, 0.75))' }} />
+  <div className="icon-wrapper groom-icon-wrapper">
+    <img src="/Groom-new.png" alt="Groom" className="category-icon-img" />
   </div>
 );
 
 const BrideIcon = () => (
-  <div style={{ width: '130px', height: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <img src="/Bride.png" alt="Bride" style={{ height: '100%', width: '100%', objectFit: 'contain', filter: 'drop-shadow(0 0 18px rgba(233, 213, 255, 0.75))' }} />
+  <div className="icon-wrapper bride-icon-wrapper">
+    <img src="/Bride.png" alt="Bride" className="category-icon-img" />
   </div>
 );
 

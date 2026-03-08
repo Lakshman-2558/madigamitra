@@ -473,7 +473,31 @@ h6,
   justify-content: center;
   align-items: center;
   filter: drop-shadow(0 0 20px rgba(233, 213, 255, 0.8));
-  height: 110px;
+  height: 140px;
+  width: 100%;
+}
+
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px;
+  max-width: 100%;
+}
+
+.groom-icon-wrapper {
+  height: 170px;
+}
+
+.bride-icon-wrapper {
+  height: 150px;
+}
+
+.category-icon-img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(233, 213, 255, 0.75));
 }
 
 .btn-text {
@@ -821,7 +845,18 @@ h6,
 
   .btn-icon {
     height: 100px;
-    transform: scale(1.35);
+  }
+
+  .icon-wrapper {
+    width: 90px;
+  }
+
+  .groom-icon-wrapper {
+    height: 110px;
+  }
+
+  .bride-icon-wrapper {
+    height: 95px;
   }
 
   .profiles-header-container {
