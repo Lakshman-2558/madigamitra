@@ -342,14 +342,19 @@ export const searchProfiles = async (req, res) => {
     let filter = { status: 'active' };
     let searchType = null;
 
-    if (query.length === 2) {
+    if (query.length === 2 || query.length === 4) {
       // Year search
-      const year = parseInt(query, 10);
+      let year = parseInt(query, 10);
+
+      // Handle 4-digit year conversion (e.g., 1998 -> 98, 2000 -> 0)
+      if (query.length === 4) {
+        year = year % 100;
+      }
 
       if (isNaN(year) || year < 0 || year > 99) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid year. Enter 2 digits (00-99)'
+          message: 'Invalid year. Enter 2 or 4 digits (e.g., 98 or 1998)'
         });
       }
 

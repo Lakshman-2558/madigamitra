@@ -285,8 +285,16 @@ const Home = () => {
   const filteredProfiles = profiles.filter((p) => {
     if (!searchQuery) return true;
     const q = searchQuery.trim();
+
+    // Check original 2-digit format
     if (q.length === 2 && p.year === parseInt(q, 10)) return true;
+
+    // Check 4-digit format (e.g. '2000' or '1998')
+    if (q.length === 4 && formatYear(p.year) === q) return true;
+
+    // Check if profile code contains query
     if (p.profileCode.includes(q)) return true;
+
     return false;
   });
 
@@ -318,7 +326,7 @@ const Home = () => {
               <SearchIcon />
               <input
                 type="text"
-                placeholder="Search by ID or Year (e.g. 98)"
+                placeholder="Search by ID or Year (e.g. 1998 or 98)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
