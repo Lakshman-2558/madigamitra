@@ -105,7 +105,7 @@ const UploadProfile = () => {
 
         <form onSubmit={handleUpload}>
           <div className="form-group">
-            <label htmlFor="image">Select Images (jpg, png) - Max 100 at a time</label>
+            <label htmlFor="image">Select Images (jpg, png)</label>
             <input
               type="file"
               id="image"

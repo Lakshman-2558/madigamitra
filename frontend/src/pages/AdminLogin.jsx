@@ -75,11 +75,7 @@ const AdminLogin = () => {
           </button>
         </form>
 
-        <div className="demo-info">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>Username: admin</p>
-          <p>Password: admin123</p>
-        </div>
+
 
         <div className="return-link">
           <Link to="/">← Return to Public Catalog</Link>

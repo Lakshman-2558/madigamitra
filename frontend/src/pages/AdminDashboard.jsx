@@ -9,7 +9,13 @@ const AdminDashboard = () => {
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [deleting, setDeleting] = useState(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 10;
+
   const navigate = useNavigate();
 
   const token = localStorage.getItem('adminToken');
@@ -43,6 +49,7 @@ const AdminDashboard = () => {
 
       if (result.success) {
         setProfiles(result.profiles);
+        setCurrentPage(1); // Reset page on new fetch
       } else {
         setError(result.message);
       }
@@ -88,6 +95,20 @@ const AdminDashboard = () => {
   const totalProfiles = profiles.length;
   const totalBrides = profiles.filter((p) => p.category === 'Bride').length;
   const totalGrooms = profiles.filter((p) => p.category === 'Groom').length;
+
+  // Filter by search query
+  const searchableProfiles = profiles.filter(p => {
+    if (!searchQuery) return true;
+    return p.profileCode.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  // Calculate Pagination
+  const indexOfLastProfile = currentPage * profilesPerPage;
+  const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
+  const currentProfiles = searchableProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
+  const totalPages = Math.ceil(searchableProfiles.length / profilesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="admin-dashboard-layout">
@@ -160,6 +181,18 @@ const AdminDashboard = () => {
           <div className="content-header">
             <h2>Profiles Directory</h2>
             <div className="filters-glass">
+              <div className="filter-group hide-mobile-label">
+                <input
+                  type="text"
+                  placeholder="Search by Code..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="search-input-glass"
+                />
+              </div>
               <div className="filter-group">
                 <label htmlFor="status">Status:</label>
                 <select id="status" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
@@ -185,7 +218,7 @@ const AdminDashboard = () => {
             <div className="loading">Loading profiles...</div>
           ) : (
             <div className="table-responsive">
-              {profiles.length === 0 ? (
+              {currentProfiles.length === 0 ? (
                 <div className="no-profiles">No profiles found</div>
               ) : (
                 <table className="profiles-table">
@@ -202,7 +235,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {profiles.map((profile) => (
+                    {currentProfiles.map((profile) => (
                       <tr key={profile._id} className={`row-${profile.status}`}>
                         <td>
                           <img src={profile.imageUrl} alt={profile.profileCode} />
@@ -231,6 +264,31 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               )}
+            </div>
+          )}
+
+          {/* PAGINATION CONTROLS */}
+          {!loading && totalPages > 1 && (
+            <div className="pagination-container">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                Prev
+              </button>
+
+              <span className="pagination-info">
+                Page <span className="highlight">{currentPage}</span> of {totalPages}
+              </span>
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="pagination-btn"
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

@@ -206,9 +206,14 @@ const Home = () => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setHomeBgActive(entry.isIntersecting);
+        // Only set false if we completely scrolled out (top of page)
+        if (entry.isIntersecting) {
+          setHomeBgActive(true);
+        } else if (window.scrollY < 100) {
+          setHomeBgActive(false);
+        }
       },
-      { threshold: 0.25 }
+      { threshold: 0.1 }
     );
 
     observer.observe(el);
@@ -233,10 +238,51 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    // 1. Silent unlocker for Chrome Autoplay Policy
+    const unlockAudio = () => {
+      if ('speechSynthesis' in window) {
+        const dummy = new SpeechSynthesisUtterance('');
+        dummy.volume = 0;
+        window.speechSynthesis.speak(dummy);
+      }
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+
+    // 2. 5-Second Timer
+    if (selectedCategory) return;
+
+    const timer = setTimeout(() => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+
+        const message = new SpeechSynthesisUtterance("వధూవరుల ప్రొఫైల్లను చూడటానికి, కిందకు స్క్రోల్ చేయండి లేదా 'Explore' బటన్ను క్లిక్ చేయండి.");
+        message.lang = 'te-IN';
+        message.rate = 0.9;
+
+        window.speechSynthesis.speak(message);
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, [selectedCategory]);
+
   const handleExplore = () => {
     if (butterflyFlying) return;
     setButterflyFlying(true);
     setButterflyStage('flyingToHome');
+    setHomeBgActive(true); // Force background to show definitively
 
     // Smooth scroll down to Home section while butterfly animates
     setTimeout(() => {
@@ -326,7 +372,7 @@ const Home = () => {
               <SearchIcon />
               <input
                 type="text"
-                placeholder="Search by ID or Year (e.g. 1998 or 98)"
+                placeholder="Search by ID or Year (e.g. 1998)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -542,7 +588,7 @@ const Home = () => {
           <LogoM />
         </div>
         <h3 className="footer-title cinematic-font">MADIGAMITRA</h3>
-        <p className="footer-subtitle">Connecting Hearts Forever</p>
+        <p className="footer-subtitle">Connecting Soulmates Forever</p>
 
         <p className="footer-mission">
           సమాచార కొరతతో దూరమవుతున్న సంబంధాలను మెరుగుపరచడానికి మన బంధు మిత్రులను ప్రోత్సహించడం కోసం అచ్చమైన పదహారణాల మాదిగ కుటుంబాల నుండి వివాహం కొరకు ఎదురు చూస్తున్న నవ యువతీ యువకుల సమగ్ర సమాచారం సేకరించి వివాహ ముందస్తు పరిచయ వేదికను ఏర్పాటుచేయవలెనని మా దృఢమైన సంకల్పం
@@ -559,7 +605,7 @@ const Home = () => {
           <PhoneIcon /> 7661991199 | <WhatsAppIcon /> 9666788199
         </p>
         <p className="footer-copyright">&copy; {new Date().getFullYear()} MADIGAMITRA. All rights reserved.</p>
-        <p className="footer-wintage">Developed by <a href="https://wintage.vercel.app" target="_blank" rel="noopener noreferrer" style={{ color: '#eab308', textDecoration: 'none' }}>Team Wintage</a></p>
+        <p className="footer-wintage">Developed by <a href="https://wintage.vercel.app" target="_blank" rel="noopener noreferrer" style={{ color: '#eab308', textDecoration: 'none' }}>Wintage Developers</a></p>
 
         {/* Small floating butterflies in footer */}
         <div style={{ position: 'absolute', bottom: '20px', left: '20%', opacity: 0.5, transform: 'scale(0.3) rotate(-20deg)' }}>
