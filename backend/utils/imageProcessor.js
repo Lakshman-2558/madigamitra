@@ -35,6 +35,7 @@ export const validateImage = (file) => {
  */
 export const resizeImage = async (inputPath, outputPath) => {
   try {
+    await fs.access(inputPath);
     await sharp(inputPath)
       .resize(1200, 1600, {
         fit: 'inside',
@@ -44,7 +45,7 @@ export const resizeImage = async (inputPath, outputPath) => {
       .toFile(outputPath);
   } catch (error) {
     console.error('Image Resize Error:', error);
-    throw new Error('Failed to process image');
+    throw new Error(`Failed to process image: ${path.basename(inputPath)}`);
   }
 };
 
@@ -57,7 +58,9 @@ export const cleanupFile = async (filePath) => {
   try {
     await fs.unlink(filePath);
   } catch (error) {
-    console.warn('Cleanup warning:', error.message);
+    if (error?.code !== 'ENOENT') {
+      console.warn('Cleanup warning:', error.message);
+    }
   }
 };
 
@@ -67,5 +70,6 @@ export const cleanupFile = async (filePath) => {
  * @returns {string} - Filename with timestamp
  */
 export const generateFilename = () => {
-  return `matrimony_${Date.now()}.jpg`;
+  const unique = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
+  return `matrimony_${unique}.jpg`;
 };
