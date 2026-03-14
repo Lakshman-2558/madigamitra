@@ -115,6 +115,7 @@ export const uploadBulkProfiles = async (req, res) => {
     const results = {
       successful: 0,
       failed: 0,
+      successes: [],
       errors: []
     };
 
@@ -122,6 +123,7 @@ export const uploadBulkProfiles = async (req, res) => {
     for (const file of req.files) {
       let tempFilePath = null;
       let processedFilePath = null;
+      let profileCode = null;
 
       try {
         validateImage(file);
@@ -131,7 +133,7 @@ export const uploadBulkProfiles = async (req, res) => {
         processedFilePath = path.join(uploadsDir, filename);
 
         await resizeImage(tempFilePath, processedFilePath);
-        const profileCode = await extractCodeFromImage(processedFilePath);
+        profileCode = await extractCodeFromImage(processedFilePath);
 
         if (!profileCode) {
           throw new Error('Code not detected');
@@ -160,10 +162,15 @@ export const uploadBulkProfiles = async (req, res) => {
         await newProfile.save();
 
         results.successful++;
+        results.successes.push({
+          filename: file.originalname,
+          profileCode
+        });
       } catch (err) {
         results.failed++;
         results.errors.push({
           filename: file.originalname,
+          profileCode,
           message: err.message || 'Failed processing'
         });
       } finally {

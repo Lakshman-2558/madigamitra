@@ -352,6 +352,17 @@
   background: rgba(147, 51, 234, 0.05);
 }
 
+.loading,
+.no-profiles {
+  padding: 28px 18px;
+  text-align: center;
+  color: #e9d5ff;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
 .profiles-table img {
   width: 50px;
   height: 65px;

@@ -14,16 +14,6 @@ export const validateImage = (file) => {
   if (!file) {
     throw new Error('No file uploaded');
   }
-
-  const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
-
-  if (!allowedMimes.includes(file.mimetype)) {
-    throw new Error('Invalid file type. Only JPG, JPEG, PNG allowed');
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error('File size exceeds 2MB limit');
-  }
 };
 
 /**

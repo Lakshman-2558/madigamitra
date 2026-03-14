@@ -10,6 +10,7 @@ const UploadProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [uploadReport, setUploadReport] = useState(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('adminToken');
@@ -31,25 +32,9 @@ const UploadProfile = () => {
 
     if (selectedFiles.length === 0) return;
 
-    // Validate
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const validFiles = [];
-    const newPreviews = [];
-
-    selectedFiles.forEach(f => {
-      if (allowedTypes.includes(f.type) && f.size <= 2 * 1024 * 1024) {
-        validFiles.push(f);
-        newPreviews.push(URL.createObjectURL(f));
-      }
-    });
-
-    if (validFiles.length < selectedFiles.length) {
-      setError(`Skipped ${selectedFiles.length - validFiles.length} invalid files (wrong type or >2MB).`);
-    } else {
-      setError('');
-    }
-
-    setFiles(validFiles);
+    const newPreviews = selectedFiles.map((f) => URL.createObjectURL(f));
+    setError('');
+    setFiles(selectedFiles);
     setPreviews(newPreviews);
   };
 
@@ -69,18 +54,14 @@ const UploadProfile = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+    setUploadReport(null);
 
     try {
       const result = await uploadBulkProfiles(files, category, token);
 
       if (result.success) {
         setSuccess(result.message);
-        setFiles([]);
-        setPreviews([]);
-
-        setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 3000);
+        setUploadReport(result?.results || null);
       } else {
         setError(result.message);
       }
@@ -105,18 +86,18 @@ const UploadProfile = () => {
 
         <form onSubmit={handleUpload}>
           <div className="form-group">
-            <label htmlFor="image">Select Images (jpg, png)</label>
+            <label htmlFor="image">Select Images</label>
             <input
               type="file"
               id="image"
-              accept="image/jpeg, image/jpg, image/png"
+              accept="image/*"
               multiple
               onChange={handleFileChange}
               required
               disabled={loading}
               className="premium-file-input"
             />
-            <p className="file-info">Max size per file: 2MB | Supported: JPG, JPEG, PNG</p>
+            <p className="file-info">Supported: Images</p>
           </div>
 
           {previews.length > 0 && (
@@ -146,6 +127,37 @@ const UploadProfile = () => {
 
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
+
+          {uploadReport && (
+            <div className="info-box">
+              <p>Upload Report</p>
+              {Array.isArray(uploadReport.successes) && uploadReport.successes.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <p>Successful</p>
+                  <ol>
+                    {uploadReport.successes.map((s, idx) => (
+                      <li key={`s_${idx}`}>
+                        {s.profileCode ? `${s.profileCode} - ` : ''}{s.filename}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {Array.isArray(uploadReport.errors) && uploadReport.errors.length > 0 && (
+                <div>
+                  <p>Failed</p>
+                  <ol>
+                    {uploadReport.errors.map((e, idx) => (
+                      <li key={`e_${idx}`}>
+                        {e.profileCode ? `${e.profileCode} - ` : ''}{e.filename} ({e.message})
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
 
           <button type="submit" disabled={loading} className="upload-btn">
             {loading ? '⏳ Uploading...' : '📤 Upload Profile'}

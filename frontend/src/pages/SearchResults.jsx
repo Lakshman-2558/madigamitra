@@ -14,7 +14,7 @@ const SearchResults = () => {
     let yr = parseInt(y, 10);
     if (!isNaN(yr)) {
       if (yr >= 0 && yr <= 25) return `20${String(yr).padStart(2, '0')}`;
-      if (yr > 25 && yr <= 99) return `19${yr}`;
+      if (yr > 25 && yr <= 99) return `19${String(yr).padStart(2, '0')}`;
     }
     return y;
   };
