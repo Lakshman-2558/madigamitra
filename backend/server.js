@@ -17,15 +17,23 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // CORS configuration
+const envOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const normalizeOrigin = (o) => (o ? o.replace(/\/$/, '') : o);
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174', // Backup Vite port
-  process.env.FRONTEND_URL
-].filter(Boolean);
+  ...envOrigins
+].map(normalizeOrigin);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+    const normalized = normalizeOrigin(origin);
+    if (!origin || allowedOrigins.includes(normalized)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -33,6 +41,8 @@ app.use(cors({
   },
   credentials: true
 }));
+
+app.options('*', cors());
 
 // Database connection
 const connectDB = async () => {
