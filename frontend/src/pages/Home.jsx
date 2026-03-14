@@ -446,8 +446,7 @@ const Home = () => {
             transition={{ duration: 1.2, ease: "easeOut" }}
           >
             <div className="hero-radial-glow"></div>
-            <h1 className="hero-title cinematic-font">LET LOVE TAKE FLIGHT</h1>
-            <h2 className="hero-subtitle">Connecting MADIGA Soulmates Across the World</h2>
+            <h2 className="hero-subtitle">Connecting <span className="highlight-text">MADIGA Soulmates</span> Across the World</h2>
           </motion.div>
 
           <div className="explore-btn-wrapper">

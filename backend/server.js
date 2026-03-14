@@ -6,6 +6,13 @@ import dotenv from 'dotenv';
 // Load environment variables IMMEDIATELY to avoid undefined env vars in downstream modules like Cloudinary
 dotenv.config();
 
+// Acknowledge Gemini API configuration
+if (process.env.GEMINI_API_KEY) {
+  console.log('✅ Gemini API: Configured');
+} else {
+  console.log('⚠️  Gemini API: Not configured (Tesseract OCR only)');
+}
+
 // Import routes
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';

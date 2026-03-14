@@ -1,7 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { uploadBulkProfiles } from '../api/api';
 import '../styles/UploadProfile.css';
+
+// Romantic/Matrimony-themed loading quotes
+const loadingQuotes = [
+  "Finding your perfect match...",
+  "Love is in the air...",
+  "Connecting hearts across the world...",
+  "Building bridges between soulmates...",
+  "Every profile is a story waiting to begin...",
+  "Creating connections that last a lifetime...",
+  "Your soulmate could be one click away...",
+  "Bringing together hearts that beat as one...",
+  "Where love stories begin...",
+  "Matching dreams, creating futures...",
+  "Two hearts, one journey...",
+  "Discovering beautiful connections...",
+  "Made for each other, found here...",
+  "Crafting your love story...",
+  "The perfect match is worth the wait..."
+];
+
+// Loading Quote Component with cycling animation
+const LoadingQuotes = () => {
+  const [currentQuote, setCurrentQuote] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % loadingQuotes.length);
+    }, 3000); // Change quote every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="loading-quotes-container">
+      <div className="loading-spinner" />
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={currentQuote}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="loading-quote-text"
+        >
+          {loadingQuotes[currentQuote]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const UploadProfile = () => {
   const [files, setFiles] = useState([]);
@@ -70,6 +121,20 @@ const UploadProfile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleComplete = () => {
+    // Cleanup preview URLs
+    previews.forEach(p => URL.revokeObjectURL(p));
+    // Clear all state
+    setFiles([]);
+    setPreviews([]);
+    setError('');
+    setSuccess('');
+    setUploadReport(null);
+    // Reset file input element
+    const fileInput = document.getElementById('image');
+    if (fileInput) fileInput.value = '';
   };
 
   const handleBack = () => {
@@ -159,9 +224,15 @@ const UploadProfile = () => {
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="upload-btn">
-            {loading ? '⏳ Uploading...' : '📤 Upload Profile'}
-          </button>
+          {uploadReport ? (
+            <button type="button" onClick={handleComplete} className="upload-btn complete-btn">
+              ✓ Completed
+            </button>
+          ) : (
+            <button type="submit" disabled={loading} className="upload-btn">
+              {loading ? <LoadingQuotes /> : '📤 Upload Profile'}
+            </button>
+          )}
         </form>
       </div>
     </div>

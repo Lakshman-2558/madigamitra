@@ -1,7 +1,7 @@
 import Profile from '../models/Profile.js';
 import { extractCodeFromImage, parseProfileCode } from '../utils/ocrService.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryConfig.js';
-import { validateImage, resizeImage, cleanupFile, generateFilename } from '../utils/imageProcessor.js';
+import { validateImage, resizeImage, cleanupFile, generateFilename, createOcrRoiImage } from '../utils/imageProcessor.js';
 import path from 'path';
 import fs from 'fs/promises';
 import fsSync from 'fs';
@@ -97,6 +97,115 @@ export const uploadProfile = async (req, res) => {
 };
 
 /**
+ * Process a single file for bulk upload
+ * @param {Object} file - Multer file object
+ * @param {string} category - Bride or Groom
+ * @returns {Promise<Object>} - Result object with status and details
+ */
+const processSingleFile = async (file, category) => {
+  let tempFilePath = null;
+  let processedFilePath = null;
+  let roiFilePath = null;
+  let profileCode = null;
+
+  try {
+    validateImage(file);
+
+    const filename = generateFilename();
+    tempFilePath = file.path;
+    processedFilePath = path.join(uploadsDir, filename);
+    roiFilePath = path.join(uploadsDir, `roi_${filename}`);
+
+    // Prepare small ROI image for OCR (top-left corner) for speed + higher success
+    await createOcrRoiImage(tempFilePath, roiFilePath);
+    profileCode = await extractCodeFromImage(roiFilePath);
+
+    if (!profileCode) {
+      throw new Error('Code not detected');
+    }
+
+    const { sequenceNumber, month, year } = parseProfileCode(profileCode);
+
+    const existingProfile = await Profile.findOne({ profileCode });
+    if (existingProfile) {
+      throw new Error(`Duplicate! Profile code ${profileCode} already exists.`);
+    }
+
+    // Only now create full processed image for Cloudinary
+    await resizeImage(tempFilePath, processedFilePath);
+
+    const { url: imageUrl, publicId } = await uploadToCloudinary(processedFilePath);
+
+    const newProfile = new Profile({
+      profileCode,
+      sequenceNumber,
+      month,
+      year,
+      category,
+      imageUrl,
+      publicId,
+      status: 'active'
+    });
+
+    await newProfile.save();
+
+    return {
+      success: true,
+      filename: file.originalname,
+      profileCode
+    };
+  } catch (err) {
+    return {
+      success: false,
+      filename: file.originalname,
+      profileCode,
+      message: err.message || 'Failed processing'
+    };
+  } finally {
+    if (tempFilePath) await cleanupFile(tempFilePath).catch(() => { });
+    if (roiFilePath) await cleanupFile(roiFilePath).catch(() => { });
+    if (processedFilePath) await cleanupFile(processedFilePath).catch(() => { });
+  }
+};
+
+/**
+ * Run promises with concurrency limit
+ * @param {Array} items - Array of items to process
+ * @param {Function} processor - Async function to process each item
+ * @param {number} concurrency - Max concurrent operations (default: 3)
+ */
+const runWithConcurrency = async (items, processor, concurrency = 3) => {
+  const results = new Array(items.length);
+  const executing = new Set();
+  let index = 0;
+
+  // Start initial batch
+  while (index < items.length && executing.size < concurrency) {
+    const currentIndex = index++;
+    const promise = processor(items[currentIndex], currentIndex).then(result => {
+      results[currentIndex] = result;
+      executing.delete(promise);
+    });
+    executing.add(promise);
+  }
+
+  // Process remaining items as slots open up
+  while (index < items.length) {
+    const currentIndex = index++;
+    await Promise.race(executing);
+    const promise = processor(items[currentIndex], currentIndex).then(result => {
+      results[currentIndex] = result;
+      executing.delete(promise);
+    });
+    executing.add(promise);
+  }
+
+  // Wait for all remaining
+  await Promise.all(executing);
+  return results;
+};
+
+/**
  * ADMIN: Upload multiple profiles with OCR
  * POST /api/admin/bulk-upload
  */
@@ -119,65 +228,38 @@ export const uploadBulkProfiles = async (req, res) => {
       errors: []
     };
 
-    // Sequential processing to avoid memory/rate limit issues
-    for (const file of req.files) {
-      let tempFilePath = null;
-      let processedFilePath = null;
-      let profileCode = null;
+    // Process with concurrency limit (3 concurrent) for speed without overwhelming resources
+    const CONCURRENCY_LIMIT = 3;
+    console.log(`Processing ${req.files.length} files with concurrency limit of ${CONCURRENCY_LIMIT}...`);
 
-      try {
-        validateImage(file);
+    const processResults = await runWithConcurrency(
+      req.files,
+      (file) => processSingleFile(file, category),
+      CONCURRENCY_LIMIT
+    );
 
-        const filename = generateFilename();
-        tempFilePath = file.path;
-        processedFilePath = path.join(uploadsDir, filename);
+    console.log(`Total process results: ${processResults.length}`);
 
-        await resizeImage(tempFilePath, processedFilePath);
-        profileCode = await extractCodeFromImage(processedFilePath);
-
-        if (!profileCode) {
-          throw new Error('Code not detected');
-        }
-
-        const { sequenceNumber, month, year } = parseProfileCode(profileCode);
-
-        const existingProfile = await Profile.findOne({ profileCode });
-        if (existingProfile) {
-          throw new Error(`Duplicate! Profile code ${profileCode} already exists.`);
-        }
-
-        const { url: imageUrl, publicId } = await uploadToCloudinary(processedFilePath);
-
-        const newProfile = new Profile({
-          profileCode,
-          sequenceNumber,
-          month,
-          year,
-          category,
-          imageUrl,
-          publicId,
-          status: 'active'
-        });
-
-        await newProfile.save();
-
+    // Aggregate results safely (single thread)
+    for (const result of processResults) {
+      console.log(`Processing result: success=${result?.success}, file=${result?.filename}`);
+      if (result.success) {
         results.successful++;
         results.successes.push({
-          filename: file.originalname,
-          profileCode
+          filename: result.filename,
+          profileCode: result.profileCode
         });
-      } catch (err) {
+      } else {
         results.failed++;
         results.errors.push({
-          filename: file.originalname,
-          profileCode,
-          message: err.message || 'Failed processing'
+          filename: result.filename,
+          profileCode: result.profileCode,
+          message: result.message
         });
-      } finally {
-        if (tempFilePath) await cleanupFile(tempFilePath).catch(() => { });
-        if (processedFilePath) await cleanupFile(processedFilePath).catch(() => { });
       }
     }
+
+    console.log(`Final counts - Success: ${results.successful}, Failed: ${results.failed}`);
 
     return res.status(200).json({
       success: true,

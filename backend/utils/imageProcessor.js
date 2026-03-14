@@ -39,6 +39,34 @@ export const resizeImage = async (inputPath, outputPath) => {
   }
 };
 
+export const createOcrRoiImage = async (inputPath, outputPath) => {
+  try {
+    await fs.access(inputPath);
+    const img = sharp(inputPath);
+    const meta = await img.metadata();
+    const width = meta?.width || 0;
+    const height = meta?.height || 0;
+
+    if (!width || !height) {
+      throw new Error('Unable to read image metadata');
+    }
+
+    const roiW = Math.max(240, Math.floor(width * 0.38));
+    const roiH = Math.max(200, Math.floor(height * 0.22));
+
+    await sharp(inputPath)
+      .extract({ left: 0, top: 0, width: Math.min(roiW, width), height: Math.min(roiH, height) })
+      .grayscale()
+      .normalize()
+      .resize(900, null, { fit: 'inside', withoutEnlargement: false })
+      .jpeg({ quality: 85 })
+      .toFile(outputPath);
+  } catch (error) {
+    console.error('ROI Create Error:', error);
+    throw new Error(`Failed to prepare OCR region: ${path.basename(inputPath)}`);
+  }
+};
+
 /**
  * Clean up temporary files
  *

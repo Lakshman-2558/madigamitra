@@ -55,8 +55,8 @@ h6,
   justify-content: center;
   align-items: center;
   /* overflow: hidden; Removed so butterfly can fly out to the next section */
-  /* background: radial-gradient... */
-  background: radial-gradient(circle at center, rgba(124, 58, 237, 0.15) 0%, rgba(10, 5, 20, 1) 100%);
+  /* Background image with Landing page color overlay */
+  background: url('/landing-bg.jpg') center/cover no-repeat;
 }
 
 .hero-overlay {
@@ -65,9 +65,9 @@ h6,
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('/landing-bg.jpg') center/cover no-repeat;
-  opacity: 0.3;
-  /* blend into the background */
+  /* Landing page color effect: soft dark overlay with purple radial gradient */
+  background: radial-gradient(circle at center, rgba(15, 5, 25, 0.4) 0%, rgba(10, 0, 20, 0.6) 100%);
+  opacity: 1;
   z-index: 0;
   pointer-events: none;
 }
@@ -120,14 +120,17 @@ h6,
   letter-spacing: 8px;
   color: #ffffff;
   margin: 0;
-  text-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+  /* Landing page style - brighter text-shadow */
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
 }
 
 .brand-subtitle {
   font-size: 1rem;
   letter-spacing: 12px;
-  color: #e9d5ff;
+  /* Landing page soft purple - brighter */
+  color: #f3e8ff;
   margin: 10px 0 0 0;
+  opacity: 0.95;
 }
 
 .hero-title {
@@ -140,13 +143,21 @@ h6,
 }
 
 .hero-subtitle {
-  font-size: 1.3rem;
-  font-weight: 300;
-  color: #e9d5ff;
-  /* lavender */
+  font-size: 1.6rem;
+  font-weight: 400;
+  /* Landing page main-subheading color - brighter lavender */
+  color: #f3e8ff;
   margin: 10px 0 0 0;
-  letter-spacing: 3px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1.5px;
+  /* Landing page style text-shadow - brighter and clearer */
+  text-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+/* Highlight styling for MADIGA Soulmates */
+.highlight-text {
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(168, 85, 247, 0.8);
 }
 
 /* Explore Button */
