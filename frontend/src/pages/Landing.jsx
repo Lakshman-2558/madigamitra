@@ -74,6 +74,23 @@ const Landing = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Audio auto-play after 3-4 seconds on first visit only
+    useEffect(() => {
+        const hasPlayed = sessionStorage.getItem('landingAudioPlayed');
+        if (hasPlayed) return;
+
+        const timer = setTimeout(() => {
+            const audio = new Audio('/welcome-voice.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {
+                // Autoplay blocked by browser, ignore error
+            });
+            sessionStorage.setItem('landingAudioPlayed', 'true');
+        }, 3500); // 3.5 seconds delay
+
+        return () => clearTimeout(timer);
+    }, []);
+
     const handleExplore = () => {
         if (isTransitioning) return;
         setIsTransitioning(true);

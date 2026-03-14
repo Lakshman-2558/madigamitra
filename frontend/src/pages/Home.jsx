@@ -239,22 +239,9 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // 1. Silent unlocker for Chrome Autoplay Policy
-    const unlockAudio = () => {
-      if ('speechSynthesis' in window) {
-        const dummy = new SpeechSynthesisUtterance('');
-        dummy.volume = 0;
-        window.speechSynthesis.speak(dummy);
-      }
-      window.removeEventListener('click', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-    };
-
-    window.addEventListener('click', unlockAudio);
-    window.addEventListener('touchstart', unlockAudio);
-
-    // 2. 5-Second Timer
-    if (selectedCategory) return;
+    // Audio auto-play after 3.5 seconds on first visit only
+    const hasPlayedHome = sessionStorage.getItem('homeAudioPlayed');
+    if (hasPlayedHome || selectedCategory) return;
 
     const timer = setTimeout(() => {
       if ('speechSynthesis' in window) {
@@ -265,16 +252,15 @@ const Home = () => {
         message.rate = 0.9;
 
         window.speechSynthesis.speak(message);
+        sessionStorage.setItem('homeAudioPlayed', 'true');
       }
-    }, 5000);
+    }, 3500);
 
     return () => {
       clearTimeout(timer);
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
-      window.removeEventListener('click', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
     };
   }, [selectedCategory]);
 
