@@ -524,7 +524,7 @@ const Home = () => {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1 }}
         >
-          Find Your Perfect Match
+          Find Your Perfect Partner
         </motion.h2>
 
         <motion.div
@@ -587,10 +587,10 @@ const Home = () => {
 
         <div className="footer-gold-line"></div>
         <p className="footer-contact">
-          <PhoneIcon /> 7661991199 | <WhatsAppIcon /> 9666788199
+          <PhoneIcon /> 7661991199 &nbsp;&nbsp;|<WhatsAppIcon /> 9666788199
         </p>
         <p className="footer-copyright">&copy; {new Date().getFullYear()} MADIGAMITRA. All rights reserved.</p>
-        <p className="footer-wintage">Developed by <a href="https://wintage.vercel.app" target="_blank" rel="noopener noreferrer" style={{ color: '#eab308', textDecoration: 'none' }}>Wintage Developers</a></p>
+        <p className="footer-wintage" style={{ marginTop: '20px' }}>Developed by Wintage Developers</p>
 
         {/* Small floating butterflies in footer */}
         <div style={{ position: 'absolute', bottom: '20px', left: '20%', opacity: 0.5, transform: 'scale(0.3) rotate(-20deg)' }}>
