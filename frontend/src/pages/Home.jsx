@@ -587,7 +587,7 @@ const Home = () => {
 
         <div className="footer-gold-line"></div>
         <p className="footer-contact">
-          <PhoneIcon /> 7661991199 &nbsp;&nbsp;|<WhatsAppIcon /> 9666788199
+          <PhoneIcon /> 7661&nbsp;&nbsp;991199 &nbsp;&nbsp;|<WhatsAppIcon /> 96667&nbsp;&nbsp;88199
         </p>
         <p className="footer-copyright">&copy; {new Date().getFullYear()} MADIGAMITRA. All rights reserved.</p>
         <p className="footer-wintage" style={{ marginTop: '20px' }}>Developed by Wintage Developers</p>

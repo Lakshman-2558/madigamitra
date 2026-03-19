@@ -18,8 +18,7 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
-        {/* Launch Event is now the first entry point */}
-        <Route path="/" element={<Event />} />
+        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/results" element={<SearchResults />} />
         <Route path="/event" element={<Event />} />
