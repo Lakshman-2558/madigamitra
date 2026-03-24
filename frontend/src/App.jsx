@@ -8,6 +8,8 @@ import Event from './pages/Event';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import UploadProfile from './pages/UploadProfile';
+import PrintableForm from './pages/PrintableForm';
+import Landing from './pages/Landing';
 import GlobalCursor from './components/GlobalCursor';
 import './styles/App.css';
 
@@ -27,6 +29,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/upload" element={<UploadProfile />} />
+        <Route path="/download-form" element={<PrintableForm />} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" />} />

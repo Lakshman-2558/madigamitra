@@ -31,6 +31,7 @@ for (let i = 0; i <= 360; i += 5) {
   orbitRotate.push(angle);
 }
 
+
 // SVG Search Icon
 const SearchIcon = () => (
   <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -194,6 +195,27 @@ const Home = () => {
   const [cardGlow, setCardGlow] = useState(false);
   const [homeBgActive, setHomeBgActive] = useState(false);
   const [butterflyStage, setButterflyStage] = useState('idle');
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [hasInteractedWithAudio, setHasInteractedWithAudio] = useState(false);
+
+  const toggleAudio = () => {
+    setHasInteractedWithAudio(true);
+    if ('speechSynthesis' in window) {
+      if (isAudioPlaying) {
+        window.speechSynthesis.cancel();
+        setIsAudioPlaying(false);
+      } else {
+        window.speechSynthesis.cancel();
+        const message = new SpeechSynthesisUtterance("వధూవరుల ప్రొఫైల్లను చూడటానికి, కిందకు స్క్రోల్ చేయండి లేదా 'Explore' బటన్ను క్లిక్ చేయండి. మరియు 'profile' అప్లికేషన్ ఫారమ్ కోసం పూర్తిగా కిందకు స్క్రోల్ చేయండి.");
+        message.lang = 'te-IN';
+        message.rate = 0.9;
+        message.onend = () => setIsAudioPlaying(false);
+        window.speechSynthesis.speak(message);
+        setIsAudioPlaying(true);
+      }
+    }
+  };
+
 
   const homeSectionRef = useRef(null);
   const categoryButtonsRef = useRef(null);
@@ -238,31 +260,15 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Manual audio play logic replaces speech synthesis to fix autoplay issues
   useEffect(() => {
-    // Audio auto-play after 3.5 seconds on first visit only
-    const hasPlayedHome = sessionStorage.getItem('homeAudioPlayed');
-    if (hasPlayedHome || selectedCategory) return;
+    // We clean up any existing speech synthesis if it was running
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
 
-    const timer = setTimeout(() => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
 
-        const message = new SpeechSynthesisUtterance("వధూవరుల ప్రొఫైల్లను చూడటానికి, కిందకు స్క్రోల్ చేయండి లేదా 'Explore' బటన్ను క్లిక్ చేయండి.");
-        message.lang = 'te-IN';
-        message.rate = 0.9;
-
-        window.speechSynthesis.speak(message);
-        sessionStorage.setItem('homeAudioPlayed', 'true');
-      }
-    }, 3500);
-
-    return () => {
-      clearTimeout(timer);
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, [selectedCategory]);
 
   const handleExplore = () => {
     if (butterflyFlying) return;
@@ -408,10 +414,40 @@ const Home = () => {
       {/* =========================================================
           SECTION 1: HERO LANDING BANNER
       ========================================================= */}
-      <section className="hero-section" id="hero">
-        <div ref={heroSectionRef} style={{ position: 'absolute', inset: 0 }} />
+      <section className="hero-section" ref={heroSectionRef}>
         <div className="hero-overlay"></div>
         <div className="wave-gradient-overlay"></div>
+
+        {/* Floating Speaker Control - Fixed at top-right of the hero section */}
+        <div
+          className="speaker-symbol-wrapper"
+          style={{
+            position: 'absolute',
+            top: '30px',
+            right: '30px',
+            zIndex: 2000
+          }}
+        >
+          <button
+            className={`speaker-btn ${isAudioPlaying ? 'playing' : ''} ${!hasInteractedWithAudio ? 'blink-attention' : ''}`}
+            onClick={toggleAudio}
+            title={isAudioPlaying ? "Stop Voice" : "Play Welcome Voice"}
+          >
+            {isAudioPlaying ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+              </svg>
+            )}
+          </button>
+        </div>
         <SparkleParticles count={40} />
 
         <div className="hero-content">
@@ -590,7 +626,30 @@ const Home = () => {
           <PhoneIcon /> 7661&nbsp;&nbsp;991199 &nbsp;&nbsp;|<WhatsAppIcon /> 96667&nbsp;&nbsp;88199
         </p>
         <p className="footer-copyright">&copy; {new Date().getFullYear()} MADIGAMITRA. All rights reserved.</p>
-        <p className="footer-wintage" style={{ marginTop: '20px' }}>Developed by Wintage Developers</p>
+        <p className="footer-wintage" style={{ marginTop: '20px' }}>Developed by <span style={{ color: 'yellow' }}>Wintage Developers</span></p>
+
+        {/* Updated Download Link with Blinking Arrow */}
+        <div className="footer-arrow">⬇️</div>
+        <div className="footer-download-link" style={{ marginBottom: '40px' }}>
+          <button
+            onClick={() => navigate('/download-form')}
+            className="footer-btn-link"
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              color: '#fff',
+              padding: '10px 25px',
+              borderRadius: '25px',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              fontWeight: '600',
+              transition: 'all 0.3s',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+            }}
+          >
+            Download Application Form / అప్లికేషన్ ఫారమ్‌ను డౌన్‌లోడ్ చేయండి
+          </button>
+        </div>
 
         {/* Small floating butterflies in footer */}
         <div style={{ position: 'absolute', bottom: '20px', left: '20%', opacity: 0.5, transform: 'scale(0.3) rotate(-20deg)' }}>

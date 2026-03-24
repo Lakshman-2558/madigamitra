@@ -74,22 +74,26 @@ const Landing = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Audio auto-play after 3-4 seconds on first visit only
-    useEffect(() => {
-        const hasPlayed = sessionStorage.getItem('landingAudioPlayed');
-        if (hasPlayed) return;
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+    const [hasInteractedWithAudio, setHasInteractedWithAudio] = useState(false);
 
-        const timer = setTimeout(() => {
-            const audio = new Audio('/welcome-voice.mp3');
-            audio.volume = 0.5;
-            audio.play().catch(() => {
-                // Autoplay blocked by browser, ignore error
-            });
-            sessionStorage.setItem('landingAudioPlayed', 'true');
-        }, 3500); // 3.5 seconds delay
-
-        return () => clearTimeout(timer);
-    }, []);
+    const toggleAudio = () => {
+        setHasInteractedWithAudio(true);
+        if ('speechSynthesis' in window) {
+            if (isAudioPlaying) {
+                window.speechSynthesis.cancel();
+                setIsAudioPlaying(false);
+            } else {
+                window.speechSynthesis.cancel();
+                const message = new SpeechSynthesisUtterance("వధూవరుల ప్రొఫైల్లను చూడటానికి, కిందకు స్క్రోల్ చేయండి లేదా 'Explore' బటన్ను క్లిక్ చేయండి.");
+                message.lang = 'te-IN';
+                message.rate = 0.9;
+                message.onend = () => setIsAudioPlaying(false);
+                window.speechSynthesis.speak(message);
+                setIsAudioPlaying(true);
+            }
+        }
+    };
 
     const handleExplore = () => {
         if (isTransitioning) return;
@@ -106,6 +110,29 @@ const Landing = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.8 } }}
         >
+            {/* Speaker Control */}
+            <div className="speaker-symbol-wrapper">
+                <button 
+                    className={`speaker-btn ${isAudioPlaying ? 'playing' : ''} ${!hasInteractedWithAudio ? 'blink-attention' : ''}`} 
+                    onClick={toggleAudio}
+                    title={isAudioPlaying ? "Stop Voice" : "Play Welcome Voice"}
+                >
+                    {isAudioPlaying ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    ) : (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <line x1="23" y1="9" x2="17" y2="15"></line>
+                            <line x1="17" y1="9" x2="23" y2="15"></line>
+                        </svg>
+                    )}
+                </button>
+            </div>
+
             {/* Background Overlay to ensure text readability against the image */}
             <div className="dark-overlay"></div>
 
