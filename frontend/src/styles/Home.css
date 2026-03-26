@@ -18,6 +18,23 @@ html {
   color: #ffffff;
 }
 
+.network-warning-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background: rgba(220, 38, 38, 0.95);
+  color: #ffffff;
+  text-align: center;
+  padding: 12px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+  letter-spacing: 0.5px;
+}
+
 .home-bg-layer {
   position: fixed;
   inset: 0;
@@ -1002,4 +1019,187 @@ h6,
   display: flex;
   justify-content: center;
   align-items: center;
-}
+}
+
+/* ==========================
+   WELCOME OVERLAY
+   ========================== */
+.welcome-overlay-glass {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 5, 20, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.welcome-content-box {
+  text-align: center;
+  padding: 50px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  border-radius: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(196, 181, 253, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+}
+
+.welcome-logo-wrapper {
+  width: 110px;
+  height: 110px;
+  margin-bottom: -15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  padding: 15px;
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+}
+
+.welcome-title {
+  color: #e9d5ff;
+  font-size: 2rem;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.welcome-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 12px;
+  text-shadow: 0 0 30px rgba(124, 58, 237, 0.8);
+}
+
+.welcome-loader {
+  width: 150px;
+  height: 2px;
+  background: rgba(196, 181, 253, 0.2);
+  margin: 15px 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.welcome-loader::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #c4b5fd, transparent);
+  animation: welcome-load 2s ease-in-out infinite;
+}
+
+@keyframes welcome-load {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+.welcome-tap {
+  font-family: 'Poppins', sans-serif;
+  color: #c4b5fd;
+  font-size: 1.1rem;
+  margin-top: 5px;
+}
+
+.welcome-enter-btn {
+  margin-top: 15px;
+  padding: 15px 45px;
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.9) 0%, rgba(126, 34, 206, 0.9) 100%);
+  border: 1px solid rgba(196, 181, 253, 0.5);
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(88, 28, 135, 0.5);
+  position: relative;
+  overflow: hidden;
+  transition: padding-right 0.3s ease;
+}
+
+.welcome-enter-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-25deg);
+  animation: btnShine 4s infinite;
+}
+
+@keyframes btnShine {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.btn-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn-text-main {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.btn-text-sub {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  color: #e9d5ff;
+  opacity: 0.9;
+}
+
+.arrow-icon {
+  font-size: 1.8rem;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+
+.welcome-enter-btn:hover .arrow-icon {
+  transform: translateX(8px);
+}
+
+@media (max-width: 768px) {
+  .welcome-brand {
+    font-size: 2.2rem;
+    letter-spacing: 6px;
+  }
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  .welcome-logo-wrapper {
+    width: 90px;
+    height: 90px;
+  }
+  .welcome-enter-btn {
+    padding: 12px 30px;
+  }
+}

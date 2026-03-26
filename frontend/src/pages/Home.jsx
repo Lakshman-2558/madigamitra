@@ -196,23 +196,116 @@ const Home = () => {
   const [homeBgActive, setHomeBgActive] = useState(false);
   const [butterflyStage, setButterflyStage] = useState('idle');
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [hasInteractedWithAudio, setHasInteractedWithAudio] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return sessionStorage.getItem('madigamitra_visited') !== 'true';
+  });
+  const audioRef = useRef(null);
+  const bgMusicRef = useRef(null);
+  const [isSlowNetwork, setIsSlowNetwork] = useState(false);
+
+  useEffect(() => {
+    // Network lag warning detection
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const checkNetwork = () => {
+      if (!navigator.onLine) {
+        setIsSlowNetwork(true);
+      } else if (connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')) {
+        setIsSlowNetwork(true);
+      } else {
+        setIsSlowNetwork(false);
+      }
+    };
+    checkNetwork();
+
+    if (connection) connection.addEventListener('change', checkNetwork);
+    window.addEventListener('offline', checkNetwork);
+    window.addEventListener('online', checkNetwork);
+
+    return () => {
+      if (connection) connection.removeEventListener('change', checkNetwork);
+      window.removeEventListener('offline', checkNetwork);
+      window.removeEventListener('online', checkNetwork);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Initialize standard Audio elements using the correct relative paths
+    audioRef.current = new Audio('/welcome.mp3');
+    audioRef.current.preload = 'auto'; 
+    audioRef.current.playbackRate = 1.18; // Increase audio playback speed
+
+    bgMusicRef.current = new Audio('/bg-music.mp3');
+    bgMusicRef.current.preload = 'auto';
+    bgMusicRef.current.loop = true;
+    bgMusicRef.current.volume = 0.15; // Soft and pleasant background volume
+
+    const handleEnded = () => setIsAudioPlaying(false);
+    const handlePause = () => setIsAudioPlaying(false);
+    const handlePlay = () => setIsAudioPlaying(true);
+
+    audioRef.current.addEventListener('ended', handleEnded);
+    audioRef.current.addEventListener('pause', handlePause);
+    audioRef.current.addEventListener('play', handlePlay);
+
+    // Stop audio if user switches tabs or minimizes browser
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        if (audioRef.current) audioRef.current.pause();
+        if (bgMusicRef.current) bgMusicRef.current.pause();
+        setIsAudioPlaying(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleEnded);
+        audioRef.current.removeEventListener('pause', handlePause);
+        audioRef.current.removeEventListener('play', handlePlay);
+        audioRef.current.pause();
+        audioRef.current.src = ""; // Clean up memory
+      }
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause();
+        bgMusicRef.current.src = "";
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  const playWelcomeAudio = () => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.play().catch(e => console.log("BG Music error:", e));
+    }
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // Explicitly start from beginning
+      audioRef.current.play().catch(error => {
+        console.error("Audio playback blocked or failed. Ensure welcome.mp3 is present in the public folder.", error);
+        setIsAudioPlaying(false);
+      });
+      setIsAudioPlaying(true);
+    }
+  };
 
   const toggleAudio = () => {
-    setHasInteractedWithAudio(true);
-    if ('speechSynthesis' in window) {
+    if (audioRef.current) {
       if (isAudioPlaying) {
-        window.speechSynthesis.cancel();
+        audioRef.current.pause();
+        if (bgMusicRef.current) bgMusicRef.current.pause();
         setIsAudioPlaying(false);
       } else {
-        window.speechSynthesis.cancel();
-        const message = new SpeechSynthesisUtterance("వధూవరుల ప్రొఫైల్లను చూడటానికి, కిందకు స్క్రోల్ చేయండి లేదా 'Explore' బటన్ను క్లిక్ చేయండి. మరియు 'profile' అప్లికేషన్ ఫారమ్ కోసం పూర్తిగా కిందకు స్క్రోల్ చేయండి.");
-        message.lang = 'te-IN';
-        message.rate = 0.9;
-        message.onend = () => setIsAudioPlaying(false);
-        window.speechSynthesis.speak(message);
-        setIsAudioPlaying(true);
+        playWelcomeAudio();
       }
+    }
+  };
+
+  const stopAudioImmediate = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsAudioPlaying(false);
+    }
+    if (bgMusicRef.current) {
+      bgMusicRef.current.pause();
     }
   };
 
@@ -260,13 +353,7 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Manual audio play logic replaces speech synthesis to fix autoplay issues
-  useEffect(() => {
-    // We clean up any existing speech synthesis if it was running
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  }, []);
+
 
 
 
@@ -292,6 +379,9 @@ const Home = () => {
   };
 
   const handleCategorySelect = async (category) => {
+    // Disable voice in profiles page
+    stopAudioImmediate();
+
     setSelectedCategory(category);
     setLoading(true);
     setError('');
@@ -356,7 +446,10 @@ const Home = () => {
           transition={{ duration: 0.8 }}
         >
           <div className="profiles-header-container">
-            <button onClick={() => setSelectedCategory(null)} className="btn-back-glass">
+            <button onClick={() => {
+              setSelectedCategory(null);
+              stopAudioImmediate();
+            }} className="btn-back-glass">
               <span className="back-arrow">←</span> Select Category
             </button>
             <h2 className="view-category-title">{selectedCategory} Profiles</h2>
@@ -409,6 +502,113 @@ const Home = () => {
   // Vertical scrollable layout
   return (
     <div className="home-container">
+      <AnimatePresence>
+        {isSlowNetwork && (
+          <motion.div 
+            className="network-warning-banner"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ type: "spring", stiffness: 100 }}
+          >
+            ⚠️ <strong>Warning:</strong> You are experiencing a very slow internet connection. The website might lag or take longer to load profiles.
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div 
+            className="welcome-overlay-glass"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              if (showWelcome) {
+                setShowWelcome(false);
+                sessionStorage.setItem('madigamitra_visited', 'true');
+                if (!isAudioPlaying) {
+                  playWelcomeAudio();
+                }
+              }
+            }}
+          >
+            <motion.div 
+              className="welcome-content-box"
+              initial={{ scale: 0.8, y: 50, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 1.1, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.8, type: "spring" }}
+                className="welcome-logo-wrapper"
+              >
+                <img src="/logo.png" alt="Madigamitra Logo" className="welcome-logo" />
+              </motion.div>
+
+              <motion.h2 
+                className="welcome-title cinematic-font"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+              >
+                Welcome to
+              </motion.h2>
+
+              <motion.h1 
+                className="welcome-brand"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                MADIGAMITRA
+              </motion.h1>
+
+              <div className="welcome-loader"></div>
+
+              <motion.p 
+                className="welcome-tap"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.8 }}
+                style={{ animation: 'none', marginBottom: '10px' }}
+              >
+                Connecting Soulmates Across the World
+              </motion.p>
+              
+              <motion.button 
+                className="welcome-enter-btn"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(196, 181, 253, 0.6)" }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0, duration: 0.6 }}
+                onClick={(e) => {
+                  // Allow the parent exactly to catch this and dismiss, but we can stop propagation
+                  e.stopPropagation();
+                  if (showWelcome) {
+                    setShowWelcome(false);
+                    sessionStorage.setItem('madigamitra_visited', 'true');
+                    if (!isAudioPlaying) {
+                      playWelcomeAudio();
+                    }
+                  }
+                }}
+              >
+                <div className="btn-text-group">
+                  <span className="btn-text-main">Enter Website</span>
+                  <span className="btn-text-sub">ప్రవేశించడానికి క్లిక్ చేయండి</span>
+                </div>
+                <span className="arrow-icon">→</span>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className={homeBgActive ? 'home-bg-layer active' : 'home-bg-layer'} aria-hidden="true" />
 
       {/* =========================================================
@@ -429,7 +629,7 @@ const Home = () => {
           }}
         >
           <button
-            className={`speaker-btn ${isAudioPlaying ? 'playing' : ''} ${!hasInteractedWithAudio ? 'blink-attention' : ''}`}
+            className={`speaker-btn ${isAudioPlaying ? 'playing' : ''}`}
             onClick={toggleAudio}
             title={isAudioPlaying ? "Stop Voice" : "Play Welcome Voice"}
           >
@@ -632,7 +832,10 @@ const Home = () => {
         <div className="footer-arrow">⬇️</div>
         <div className="footer-download-link" style={{ marginBottom: '40px' }}>
           <button
-            onClick={() => navigate('/download-form')}
+            onClick={() => {
+              stopAudioImmediate();
+              navigate('/download-form');
+            }}
             className="footer-btn-link"
             style={{
               background: 'rgba(255,255,255,0.1)',
@@ -664,7 +867,10 @@ const Home = () => {
         </div>
 
 
-        <div onClick={() => navigate('/admin/login')} className="admin-login-trigger">A</div>
+        <div onClick={() => {
+          stopAudioImmediate();
+          navigate('/admin/login');
+        }} className="admin-login-trigger">A</div>
       </footer>
     </div>
   );
