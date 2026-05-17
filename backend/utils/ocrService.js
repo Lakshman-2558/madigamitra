@@ -2,10 +2,13 @@ import Tesseract from 'tesseract.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 
-// Initialize Gemini API client
-const genAI = process.env.GEMINI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-  : null;
+// Lazy initialize Gemini API client to avoid ES Module hoisting issues with dotenv
+const getGenAI = () => {
+  if (process.env.GEMINI_API_KEY) {
+    return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  }
+  return null;
+};
 
 /**
  * Extract 5-digit code from image using Gemini 2.5 Flash
@@ -13,6 +16,7 @@ const genAI = process.env.GEMINI_API_KEY
  * @returns {Promise<string|null>} - 5-digit code or null if not found
  */
 const extractCodeWithGemini = async (imagePath) => {
+  const genAI = getGenAI();
   if (!genAI) {
     console.log('Gemini API key not configured, skipping Gemini fallback');
     return null;
@@ -24,9 +28,9 @@ const extractCodeWithGemini = async (imagePath) => {
     const base64Image = imageData.toString('base64');
 
     // Get the Gemini 2.5 Flash model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-01-01' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    const prompt = `Extract the profile code from this image. The code is displayed at the top of the image in red text, labeled as "CODE : XXXXXXX".
+    const prompt = `Extract the profile code from this image. The code is displayed at the top of the image in red text, labeled as "CODE XXXXXXX" or "CODE : XXXXXXX".
 
 The code format is: [sequenceNumber][month][year] where:
 - month is 2 digits (01-12)
@@ -38,7 +42,7 @@ Examples of valid codes:
 - 120791 means sequence=12, month=07, year=91  
 - 0210300 means sequence=021, month=03, year=00
 
-Look for text that says "CODE :" followed by numbers. Return ONLY the numeric code as a string. If no code is found, return "null".`;
+Look for text that says "CODE" (with or without a colon) followed by numbers. Pay extremely close attention to the digits. Do not confuse the digit "4" with the digit "1" on noisy backgrounds. Return ONLY the numeric code as a string. If no code is found, return "null".`;
 
     const result = await model.generateContent({
       contents: [{
@@ -58,8 +62,9 @@ Look for text that says "CODE :" followed by numbers. Return ONLY the numeric co
     const response = result.response;
     const text = response.text().trim();
 
-    // Extract just the numeric code from the response
-    const codeMatch = text.match(/(\d{5,})/);
+    // Extract just the numeric code from the response (allow O/o as 0)
+    let cleanedText = text.replace(/[Oo]/g, '0');
+    const codeMatch = cleanedText.match(/(\d{5,})/);
     if (codeMatch) {
       console.log(`Gemini extracted code: ${codeMatch[1]}`);
       return codeMatch[1];
@@ -110,39 +115,61 @@ const isValidCode = (code) => {
  */
 export const extractCodeFromImage = async (imagePath) => {
   try {
-    // First attempt: Use Tesseract OCR (fast, local)
-    console.log('Attempting Tesseract OCR...');
+    // First attempt: Use Gemini 2.5 Flash (highly accurate, handles messy backgrounds)
+    if (getGenAI()) {
+      console.log('Attempting Gemini 2.5 Flash OCR...');
+      const geminiCode = await extractCodeWithGemini(imagePath);
+
+      if (geminiCode && isValidCode(geminiCode)) {
+        console.log(`Gemini extracted valid code: ${geminiCode}`);
+        return geminiCode;
+      }
+
+      if (geminiCode) {
+        console.log(`Gemini found code but invalid format: ${geminiCode}`);
+      } else {
+        console.log('Gemini found no code, trying Tesseract fallback...');
+      }
+    }
+
+    // Second attempt: Use Tesseract OCR (local fallback)
+    console.log('Attempting Tesseract OCR fallback...');
     const tesseractResult = await Tesseract.recognize(imagePath, 'eng', {
       logger: (m) => {
         // Optional: Log progress
-        // console.log('OCR Progress:', m.progress);
       }
     });
 
     const text = tesseractResult.data.text;
     console.log('Raw OCR text:', text.substring(0, 200)); // Log first 200 chars
 
+    // Clean up common OCR mistakes (e.g. letter O instead of 0) near "CODE"
+    let cleanedText = text;
+    cleanedText = cleanedText.replace(/(CODE[ \t]*:?[ \t]*)([O0-9 \t]+)/ig, (match, p1, p2) => {
+        return p1 + p2.replace(/[Oo]/g, '0');
+    });
+
     // Look for "CODE" pattern first (common in these images)
-    const codePattern = text.match(/CODE\s*:?\s*(\d[\d\s]+)/i);
+    const codePattern = cleanedText.match(/CODE[ \t]*:?[ \t]*(\d[\d \t]+)/i);
     if (codePattern) {
       console.log('Found CODE pattern:', codePattern[1]);
     }
 
     // Regex to find digits with possible spaces (like "021 0300")
-    const codeWithSpacesMatch = text.match(/\d{2,}\s+\d{4,}/);
+    const codeWithSpacesMatch = cleanedText.match(/\d{2,}[ \t]+\d{4,}/);
     if (codeWithSpacesMatch) {
       console.log('Found spaced code:', codeWithSpacesMatch[0]);
     }
 
     // Regex to find at least 5 consecutive digits anywhere
-    const codeMatch = text.match(/\d{5,}/);
+    const codeMatch = cleanedText.match(/\d{5,}/);
 
     // Clean up: remove spaces from spaced code
     let tesseractCode = null;
     if (codePattern) {
-      tesseractCode = codePattern[1].replace(/\s+/g, ''); // Remove all spaces
+      tesseractCode = codePattern[1].replace(/[ \t]+/g, ''); // Remove all spaces
     } else if (codeWithSpacesMatch) {
-      tesseractCode = codeWithSpacesMatch[0].replace(/\s+/g, ''); // Remove all spaces
+      tesseractCode = codeWithSpacesMatch[0].replace(/[ \t]+/g, ''); // Remove all spaces
     } else if (codeMatch) {
       tesseractCode = codeMatch[0];
     }
@@ -155,46 +182,14 @@ export const extractCodeFromImage = async (imagePath) => {
 
     if (tesseractCode) {
       console.log(`Tesseract found code but invalid format: ${tesseractCode}`);
-    } else {
-      console.log('Tesseract found no code, trying Gemini...');
     }
 
-    // Second attempt: Use Gemini 2.5 Flash (more accurate, API-based)
-    if (genAI) {
-      console.log('Attempting Gemini 2.5 Flash OCR fallback...');
-      const geminiCode = await extractCodeWithGemini(imagePath);
-
-      if (geminiCode && isValidCode(geminiCode)) {
-        console.log(`Gemini extracted valid code: ${geminiCode}`);
-        return geminiCode;
-      }
-
-      if (geminiCode) {
-        console.log(`Gemini found code but invalid format: ${geminiCode}`);
-      }
-    }
-
-    // If we got here, neither OCR method found a valid code
     // Return Tesseract's result if it found something, even if invalid
     // Or return null if both failed
     return tesseractCode || null;
 
   } catch (error) {
     console.error('OCR Error:', error);
-
-    // If Tesseract completely failed, try Gemini as last resort
-    if (genAI) {
-      console.log('Tesseract failed, trying Gemini as last resort...');
-      try {
-        const geminiCode = await extractCodeWithGemini(imagePath);
-        if (geminiCode && isValidCode(geminiCode)) {
-          return geminiCode;
-        }
-      } catch (geminiError) {
-        console.error('Gemini fallback also failed:', geminiError.message);
-      }
-    }
-
     throw new Error('OCR Processing Failed');
   }
 };

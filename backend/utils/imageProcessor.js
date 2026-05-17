@@ -51,15 +51,12 @@ export const createOcrRoiImage = async (inputPath, outputPath) => {
       throw new Error('Unable to read image metadata');
     }
 
-    const roiW = Math.max(240, Math.floor(width * 0.38));
-    const roiH = Math.max(200, Math.floor(height * 0.22));
+    const roiW = width;
+    const roiH = Math.max(300, Math.floor(height * 0.40));
 
     await sharp(inputPath)
-      .extract({ left: 0, top: 0, width: Math.min(roiW, width), height: Math.min(roiH, height) })
-      .grayscale()
-      .normalize()
-      .resize(900, null, { fit: 'inside', withoutEnlargement: false })
-      .jpeg({ quality: 85 })
+      .extract({ left: 0, top: 0, width: roiW, height: Math.min(roiH, height) })
+      .jpeg({ quality: 95 })
       .toFile(outputPath);
   } catch (error) {
     console.error('ROI Create Error:', error);
