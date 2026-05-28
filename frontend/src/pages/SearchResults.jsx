@@ -35,6 +35,13 @@ const SearchResults = () => {
 
   const total = brides.length + grooms.length;
 
+  const scrollRow = (id, direction) => {
+    const row = document.getElementById(id);
+    if (row) {
+      row.scrollBy({ left: direction === 'left' ? -350 : 350, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="results-container dark-premium-theme">
       {/* Abstract Ambient Glows */}
@@ -90,12 +97,20 @@ const SearchResults = () => {
               <div className="category-header-glass">
                 <h2 className="view-category-title">👰 Brides - Born Year {formatYear(searchQuery)}</h2>
               </div>
-              <div className="profiles-grid-scrollable">
-                {brides.map((profile) => (
-                  <div key={profile._id} className="profile-wrapper">
-                    <ProfileCard profile={profile} />
-                  </div>
-                ))}
+              <div className="year-row-wrapper" style={{ position: 'relative' }}>
+                <button className="row-scroll-btn left" onClick={() => scrollRow('search-brides-row', 'left')}>
+                  &#10094;
+                </button>
+                <div id="search-brides-row" className="profiles-grid-scrollable">
+                  {brides.map((profile) => (
+                    <div key={profile._id} className="profile-wrapper">
+                      <ProfileCard profile={profile} rowProfiles={brides} />
+                    </div>
+                  ))}
+                </div>
+                <button className="row-scroll-btn right" onClick={() => scrollRow('search-brides-row', 'right')}>
+                  &#10095;
+                </button>
               </div>
             </section>
           )}
@@ -106,12 +121,20 @@ const SearchResults = () => {
               <div className="category-header-glass">
                 <h2 className="view-category-title">🤵 Grooms - Born Year {formatYear(searchQuery)}</h2>
               </div>
-              <div className="profiles-grid-scrollable">
-                {grooms.map((profile) => (
-                  <div key={profile._id} className="profile-wrapper">
-                    <ProfileCard profile={profile} />
-                  </div>
-                ))}
+              <div className="year-row-wrapper" style={{ position: 'relative' }}>
+                <button className="row-scroll-btn left" onClick={() => scrollRow('search-grooms-row', 'left')}>
+                  &#10094;
+                </button>
+                <div id="search-grooms-row" className="profiles-grid-scrollable">
+                  {grooms.map((profile) => (
+                    <div key={profile._id} className="profile-wrapper">
+                      <ProfileCard profile={profile} rowProfiles={grooms} />
+                    </div>
+                  ))}
+                </div>
+                <button className="row-scroll-btn right" onClick={() => scrollRow('search-grooms-row', 'right')}>
+                  &#10095;
+                </button>
               </div>
             </section>
           )}

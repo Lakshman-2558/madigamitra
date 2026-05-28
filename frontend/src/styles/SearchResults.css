@@ -131,10 +131,56 @@
   overflow-x: auto;
   padding-bottom: 20px;
   scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 
 .profiles-grid-scrollable::-webkit-scrollbar {
   display: none;
+}
+
+.year-row-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.row-scroll-btn {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.row-scroll-btn:hover {
+  background: rgba(168, 85, 247, 0.8);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+}
+
+.row-scroll-btn.left {
+  left: -25px;
+}
+
+.row-scroll-btn.right {
+  right: -25px;
+}
+
+@media (max-width: 768px) {
+  .row-scroll-btn {
+    display: none;
+  }
 }
 
 .profile-wrapper {

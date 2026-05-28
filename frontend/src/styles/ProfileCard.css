@@ -130,3 +130,58 @@
   background: rgba(168, 85, 247, 0.5);
   transform: scale(1.1);
 }
+
+.modal-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-nav-btn:hover {
+  background: rgba(168, 85, 247, 0.5);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prev-btn {
+  left: -60px;
+}
+
+.next-btn {
+  right: -60px;
+}
+
+/* Mobile adjustments for navigation buttons */
+@media (max-width: 768px) {
+  .modal-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .prev-btn {
+    left: -15px;
+  }
+
+  .next-btn {
+    right: -15px;
+  }
+  
+  .modal-close-btn {
+    top: -45px;
+    right: 0px;
+  }
+}

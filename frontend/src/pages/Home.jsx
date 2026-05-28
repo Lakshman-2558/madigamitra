@@ -435,6 +435,13 @@ const Home = () => {
 
   const sortedYears = Object.keys(groupedProfiles).sort((a, b) => b - a);
 
+  const scrollRow = (id, direction) => {
+    const row = document.getElementById(id);
+    if (row) {
+      row.scrollBy({ left: direction === 'left' ? -350 : 350, behavior: 'smooth' });
+    }
+  };
+
   // If a category is selected, view profiles directly (replaces scroll layout)
   if (selectedCategory) {
     return (
@@ -479,12 +486,20 @@ const Home = () => {
                     <h3 className="year-title">Born Year {formatYear(yearStr)}</h3>
                     <span className="year-badge">{groupedProfiles[yearStr].length}</span>
                   </div>
-                  <div className="year-row">
-                    {groupedProfiles[yearStr].map(p => (
-                      <div key={p._id} className="profile-wrapper">
-                        <ProfileCard profile={p} />
-                      </div>
-                    ))}
+                  <div className="year-row-wrapper" style={{ position: 'relative' }}>
+                    <button className="row-scroll-btn left" onClick={() => scrollRow(`year-row-${yearStr}`, 'left')}>
+                      &#10094;
+                    </button>
+                    <div id={`year-row-${yearStr}`} className="year-row">
+                      {groupedProfiles[yearStr].map(p => (
+                        <div key={p._id} className="profile-wrapper">
+                          <ProfileCard profile={p} rowProfiles={groupedProfiles[yearStr]} />
+                        </div>
+                      ))}
+                    </div>
+                    <button className="row-scroll-btn right" onClick={() => scrollRow(`year-row-${yearStr}`, 'right')}>
+                      &#10095;
+                    </button>
                   </div>
                 </div>
               ))
